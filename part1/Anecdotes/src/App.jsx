@@ -35,6 +35,8 @@ const App = () => {
 
     setVote(newVoteArr)
   }
+  
+  
 
   const anecdotes = [
     'If it hurts, do it more often.',
