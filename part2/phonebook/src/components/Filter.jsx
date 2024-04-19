@@ -1,4 +1,4 @@
-const Filter = ({search, setSearch, persons}) => {
+const Filter = ({ search, setSearch, persons }) => {
   return (
     <>
       filter shown with: {" "}

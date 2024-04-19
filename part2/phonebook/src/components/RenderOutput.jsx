@@ -1,11 +1,10 @@
-const RenderOutput = ({ newFilterValue, persons, filteredPersons, handleDelete }) => {
+const RenderOutput = ({ persons, handleDelete }) => {
   return (
     <div>
       {persons.length > 0 && persons.map((person) => {
         return (
-          <div key={person.name}>
-            {person.name} : {person.number}
-            <button onClick={() => handleDelete(person.name, person.id)}>Delete</button>
+          <div key={person.id}>
+            {person.name} : {person.number} <button onClick={() => handleDelete(person.name, person.id)}>Delete</button>
           </div>
         )
       })}

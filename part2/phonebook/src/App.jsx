@@ -9,7 +9,6 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
-  const [newFilterValue, setNewFilterValue] = useState('')
 
   useEffect(() => {
     phonebookServices.getAll().then(contacts => setPersons(contacts))
@@ -18,22 +17,32 @@ const App = () => {
   const updateContact = (event) => {
     event.preventDefault()
 
-    if(persons.some(persons => persons.name === newName)){
-      alert(`${newName} is already added to phonebook`)
-      setNewName('')
-      setNewNumber('')
-      return
-    }
+    const existingPerson = persons.find(person => person.name === newName);
 
-    const newPerson = {
-      name: newName,
-      number: newNumber,
-      id: String(persons.length + 1)
-    }
+    if (existingPerson) {
+      const confirmUpdate = window.confirm(`${newName} is already added to the phonebook. Do you want to update the phone number?`);
 
-    phonebookServices.create(newPerson).then(createdPerson => {
-      setPersons([ ...persons, createdPerson])
-    })
+      if(confirmUpdate) {
+        const updatedPerson = { ...existingPerson, number: newNumber }
+
+        phonebookServices.update(existingPerson.id, updatedPerson).then(updated => {
+          setPersons(persons.map(person => person.id === existingPerson.id ? updated : person))
+        })
+        .catch(error => {
+          console.log(error)
+        })
+      }
+    } else {
+      const newPerson = {
+        name: newName,
+        number: newNumber,
+        id: String(persons.length + 1)
+      }
+
+      phonebookServices.create(newPerson).then(createdPerson => {
+        setPersons([ ...persons, createdPerson])
+      })
+    }
     setNewName('')
     setNewNumber('')
   }
@@ -57,20 +66,16 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
-  const filteredPersons = persons.filter(person => 
-    person.name.toLowerCase().includes(newFilterValue.toLowerCase()) || person.number.includes(newFilterValue)
-  )
-
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
       <Filter search={search} setSearch={setSearch} persons={persons} />
 
       <h3>add a new</h3>
       <PersonForm newName={newName} handleContactChange={handleContactChange} newNumber={newNumber} handlePhoneChange={handlePhoneChange} updateContact={updateContact} />
 
       <h3>Numbers</h3>
-      <RenderOutput newFilterValue={newFilterValue} persons={persons} filteredPersons={filteredPersons} handleDelete={handleDelete} /> 
+      <RenderOutput persons={persons} handleDelete={handleDelete} /> 
     </div>
   )
 }
