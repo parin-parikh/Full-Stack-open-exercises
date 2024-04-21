@@ -3,12 +3,15 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import RenderOutput from './components/RenderOutput'
 import phonebookServices from './services/phonebook'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
+  const [msg, setMsg] = useState('')
+  const [styleClass, setStyleClass] = useState('')
 
   useEffect(() => {
     phonebookServices.getAll().then(contacts => setPersons(contacts))
@@ -29,7 +32,13 @@ const App = () => {
           setPersons(persons.map(person => person.id === existingPerson.id ? updated : person))
         })
         .catch(error => {
-          console.log(error)
+          setStyleClass('error')
+          setMsg(
+            `Information of ${updatedPerson.name} has already been removed from server`
+          )
+          setTimeout(() => {
+            setMsg(null)
+          }, 5000)
         })
       }
     } else {
@@ -41,7 +50,16 @@ const App = () => {
 
       phonebookServices.create(newPerson).then(createdPerson => {
         setPersons([ ...persons, createdPerson])
+
+        setStyleClass('success')
+        setMsg(
+          `Contact '${createdPerson.name}' was successfully added`
+        )
+        setTimeout(() => {
+          setMsg(null)
+        }, 5000)
       })
+
     }
     setNewName('')
     setNewNumber('')
@@ -69,6 +87,8 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      {msg !== '' ? <Notification message={msg} styleClass={styleClass} /> : null}
+
       <Filter search={search} setSearch={setSearch} persons={persons} />
 
       <h3>add a new</h3>
